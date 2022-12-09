@@ -70,25 +70,35 @@ def beam2local_def_disp(ex, ey, disp_global):
     # L0 = math.sqrt(eVec12 @ eVec12)
     L0 = np.linalg.norm(eVec12)
 
+    # Retningsvektor
     ex0 = eVec12 / L0
 
-    # Finner de deformerte rotasjonene
+    # Henter ut posisjonene
     x1, x2, y1, y2 = ex[0], ex[1], ey[0], ey[1]
+
+    # Henter ut nodeforskyvningene
     u1, v1, u2, v2 = disp_global[0], disp_global[1], disp_global[3], \
                      disp_global[4]
+
+    # Henter ut rotasjonene
     r1, r2 = disp_global[2], disp_global[5]
 
+    # Vektorer for deformert element
     E_xn = [(x2 + u2) - (x1 + u1),
             (y2 + v2) - (y1 + v1)]
     E_xn = np.array(E_xn)
 
-    Ld = np.linalg.norm(E_xn)  # Nye lengde
+    # Lengde på nytt element
+    Ld = np.linalg.norm(E_xn)
+
+    # Retningsvektorer for nytt element
     e_xn = E_xn / Ld
 
     e_yn = [-e_xn[1],
             e_xn[0]]
-    e_yn = np.array(e_yn)
-    # e_yn = e_yn / np.linalg.norm(e_yn)
+    e_yn = np.array(e_yn)  # Konverterer til numpy array
+
+    # Rotasjonsmatriser
 
     R1 = rot_matrix(r1)
     R2 = rot_matrix(r2)
@@ -96,17 +106,9 @@ def beam2local_def_disp(ex, ey, disp_global):
     t1 = R1 @ ex0
     t2 = R2 @ ex0
 
-    #     print("e_yn", e_yn)
-    #     print("e_xn", e_xn)
-    #     print("t1", t1)
-    #     print("t2", t2)
-    #     print(e_yn)
-    #     print("e_yn @ t1", e_yn @ t1)
     theta1_def = math.asin(e_yn @ t1)
     theta2_def = math.asin(e_yn @ t2)
 
-    #     print("L0", L0)
-    #     print("Ld", Ld)
 
     def_disp_local = np.array([-0.5 * (Ld - L0),
                                0.0,
@@ -114,7 +116,9 @@ def beam2local_def_disp(ex, ey, disp_global):
                                0.5 * (Ld - L0),
                                0.0,
                                theta2_def])
+    #print("Deformert elementvektor", def_disp_local)
     return def_disp_local
+
 
 
 def L_deformed(ex, ey, disp_global):
@@ -174,11 +178,7 @@ def beam2corot_Ke_and_Fe(ex,ey,ep, disp_global):
     v_local = beam2local_def_disp(ex, ey, disp_global)
 
     # Length of element before deformation
-    L = L0  # I denne konteksten?
-    Kle = beam2local_stiff(L, ep)
-
-    # Material
-    Ke_mat = beam2local_stiff(L0, ep)
+    L = L0  # I denne konteksten
 
     # Material and local forces
     Ke_mat = beam2local_stiff(L0, ep)
