@@ -13,6 +13,8 @@ class SlantedTrussStructure:
 
         self.L0 = math.sqrt(self.LH**2 + self.LV**2) #Inital slanted length
 
+    def get_num_dofs(self):
+        return 2
 
     def get_vecQ(self,Lambda):
         # Return the forces that are applied to the nodes from the external forces
